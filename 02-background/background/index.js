@@ -32,8 +32,8 @@ const countSecond = () => {
   })
 }
 
-const handleInit = (sendResponse) => {
-  sendResponse({
+const handleInit = () => {
+  return Promise.resolve({
     ...appState,
     lapTime: getCurrentLapTime()
   })
@@ -54,48 +54,43 @@ const handleStop = () => {
 
 const handleResume = handleStart
 
-const handleReset = (sendResponse) => {
+const handleReset = () => {
   appState.totalTime = 0
   appState.laps = []
   appState.timerState = timerStates.INITIAL
 
-  sendResponse()
+  return Promise.resolve({})
 }
 
-const handleLap = (sendResponse) => {
+const handleLap = () => {
   const lap = {
     lapNumber: appState.laps.length + 1,
     totalTime: appState.totalTime,
     lapTime: getCurrentLapTime()
   }
   appState.laps.push(lap)
-  sendResponse(lap)
+  return Promise.resolve(lap)
 }
 
-function listener (message, _, sendResponse) {
+function listener (message) {
   switch (message.op) {
     case 'init': {
-      handleInit(sendResponse)
-      break
+      return handleInit()
     }
     case 'start': {
-      handleStart()
-      break
+      return handleStart()
     }
     case 'stop': {
-      handleStop()
-      break
+      return handleStop()
     }
     case 'resume': {
-      handleResume()
-      break
+      return handleResume()
     }
     case 'reset': {
-      handleReset(sendResponse)
-      break
+      return handleReset()
     }
     case 'lap': {
-      handleLap(sendResponse)
+      return handleLap()
     }
   }
 }
